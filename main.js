@@ -1,46 +1,116 @@
 //var c = document.getElementById("canvas");
+
+//const { sha } = require("hash.js");
+
 //var ctx = c.getContext("2d");
+var time = true;
+var clearScreen = false;
+
 function startGame() {
     myGameArea.start();
-    myGamePiece = new sq(30, 30, "blue", 10, 120);
+    myGamePieces = [
+        new entity(20, "blue", 10, 120, 0.5),
+        new entity(20, "red", 500, 120, 2),
+        new entity(20, "green", 400, 120, 1),
+        new entity(20, "orange", 500, 150, 1),
+    ];
 }
 
-function sq(width, height, color, x, y) {
-    this.width = width;
-    this.height = height;
-    this.speedx = 2;
-    this.speedy = 2;
-    this.x = x;
-    this.y = y;
+class Vector {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    add(vector) {
+        return new Vector(this.x + vector.x, this.y + vector.y);
+    }
 
-    this.search = function() {};
+    subtract(vector) {
+        return new Vector(this.x - vector.x, this.y - vector.y);
+    }
+
+    multiply(scalar) {
+        return new Vector(this.x * scalar, this.y * scalar);
+    }
+
+    dotProduct(vector) {
+        return this.x * vector.x + this.y * vector.y;
+    }
+
+    get magnitude() {
+        return Math.sqrt(this.x ** 2 + this.y ** 2);
+    }
+
+    get direction() {
+        return Math.atan2(this.x, this.y);
+    }
+}
+
+function entity(radius, color, x, y, speedMod) {
+    this.speedMod = speedMod;
+    this.radius = radius;
+    this.speed = new Vector(0, 0);
+    this.pos = new Vector(x, y);
+    this.search = function() {
+        this.speed = this.speed.add(
+            mousePos
+            .subtract(this.pos)
+            .add(mousePos.subtract(this.pos))
+            .multiply(0.005)
+            .multiply(speedMod)
+        );
+        //make sure pieces try to avoid eachother;
+        myGamePieces.forEach((a) => {
+            if (a.pos != this.pos && a.pos.subtract(this.pos).magnitude < 70) {
+                this.speed = this.speed.add(
+                    a.pos.subtract(this.pos).multiply(-0.009).multiply(speedMod)
+                );
+            }
+        });
+    };
 
     this.update = function() {
         // Set update locations from speed
+
         if (
-            this.x + this.speedx > 0 &&
-            this.x + this.speedx + this.width < myGameArea.canvas.width
+            this.pos.x + this.speed.x > 0 &&
+            this.pos.x + this.speed.x + this.radius < myGameArea.canvas.width &&
+            time
         ) {
-            this.x += this.speedx;
+            this.pos.x += this.speed.x;
         }
         if (
-            this.y + this.speedy > 0 &&
-            this.y + this.speedy + this.height < myGameArea.canvas.height
+            this.pos.y + this.speed.y > 0 &&
+            this.pos.y + this.speed.y + this.radius < myGameArea.canvas.height &&
+            time
         ) {
-            this.y += this.speedy;
+            this.pos.y += this.speed.y;
         }
 
         ctx = myGameArea.context;
         ctx.fillStyle = color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.beginPath();
+        ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+    };
+
+    this.contains = function(vector) {
+        return this.pos.subtract(vector).magnitude < this.radius;
     };
 }
 
-var mousePos;
+var mousePos = new Vector(0, 0);
 
 function updateGameArea() {
-    myGameArea.clear();
-    myGamePiece.update();
+    if (clearScreen) myGameArea.clear();
+    myGamePieces.forEach((a) => {
+        if (time) {
+            a.search();
+        }
+
+        a.update();
+    });
 }
 
 var myGameArea = {
@@ -58,10 +128,32 @@ var myGameArea = {
     },
 };
 
+document.body.onkeydown = function(e) {
+    if (e.keyCode == 32) {
+        time = !time;
+    }
+};
+
+function checkclearer() {
+    clearScreen = !clearScreen;
+}
+
+function addItemOnClick() {
+    var size = document.getElementById("sizeSlider").value;
+    var speed = document.getElementById("speedSlider").value / 10;
+    var color = document.getElementById("color").value;
+    var clickedOnSomething = false;
+    myGamePieces.forEach(function(item, index, object) {
+        if (item.contains(mousePos)) {
+            object.splice(index, 1);
+            clickedOnSomething = true;
+        }
+    });
+    if (!clickedOnSomething)
+        myGamePieces.push(new entity(size, color, mousePos.x, mousePos.y, speed));
+}
+
 function getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
-    return {
-        x: evt.clientX - rect.left,
-        y: evt.clientY - rect.top,
-    };
+    return new Vector(evt.clientX - rect.left, evt.clientY - rect.top);
 }
