@@ -1,0 +1,23 @@
+canvas {
+    background-color: white;
+    border-color: black;
+    border-width: 2x;
+    border-style: solid;
+}
+
+body {
+    background-color: lightcyan;
+}
+
+.paddleft {
+    margin-left: 25%;
+}
+
+.center-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+}
