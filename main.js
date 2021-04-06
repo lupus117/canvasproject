@@ -5,6 +5,7 @@
 //var ctx = c.getContext("2d");
 var time = true;
 var clearScreen = false;
+var mouseGrav = true;
 
 function startGame() {
     myGameArea.start();
@@ -14,6 +15,17 @@ function startGame() {
         new entity(20, "green", 400, 120, 1, false),
         new entity(20, "orange", 500, 150, 1, true),
     ];
+}
+
+function averagemovements() {
+    var totalspeedvector = new Vector(0, 0);
+    array.forEach((a) => {
+        totalspeedvector = totalspeedvector.add(a);
+    });
+    totalspeedvector.multiply((1 / myGamePieces.count) * -1);
+    array.forEach((a) => {
+        a.speed = a.spee.add(totalspeedvector);
+    });
 }
 
 class Vector {
@@ -53,27 +65,57 @@ function entity(radius, color, x, y, speedMod, gravity) {
     this.pos = new Vector(x, y);
     this.gravity = gravity;
     this.search = function() {
-        this.speed = this.speed.add(
-            mousePos
-            .subtract(this.pos)
-            .add(mousePos.subtract(this.pos))
-            .multiply(0.0005)
-            .multiply(speedMod)
-        );
+        /* if (mouseGrav)
+                                                            this.speed = this.speed.add(
+                                                                mousePos
+                                                                .subtract(this.pos)
+                                                                .add(mousePos.subtract(this.pos))
+                                                                .multiply(0.0005)
+                                                                .multiply(speedMod)
+                                                            );*/
+        if (mouseGrav)
+            this.speed = this.speed.add(
+                mousePos
+                .subtract(this.pos)
+                .add(mousePos.subtract(this.pos))
+                .multiply(0.0005)
+                .multiply(speedMod)
+            );
         //make sure pieces try to avoid eachother;
         myGamePieces.forEach((a) => {
-            if (a.pos != this.pos && a.pos.subtract(this.pos).magnitude < 70) {
-                if (a.gravity) {
+            /*
+                                                                                                                if (a.pos != this.pos && a.pos.subtract(this.pos).magnitude < 70) {
+                                                                                                                    if (a.gravity) {
+                                                                                                                        this.speed = this.speed.add(
+                                                                                                                            this.pos
+                                                                                                                            .subtract(this.pos)
+                                                                                                                            .add(mousePos.subtract(this.pos))
+                                                                                                                            .multiply(0.005)
+                                                                                                                            .multiply(speedMod)
+                                                                                                                        );
+                                                                                                                    } else if (!this.gravity)
+                                                                                                                        this.speed = this.speed.add(
+                                                                                                                            a.pos.subtract(this.pos).multiply(-0.009).multiply(speedMod)
+                                                                                                                        );*/
+            if (a.pos != this.pos) {
+                this.speed = this.speed.add(
+                    a.pos
+                    .subtract(this.pos)
+                    .multiply(
+                        (a.speedMod * this.speedMod) /
+                        this.pos.subtract(a.pos).magnitude /
+                        4
+                    )
+                );
+                if (a.pos.subtract(this.pos).magnitude < 50)
                     this.speed = this.speed.add(
-                        this.pos
+                        a.pos
                         .subtract(this.pos)
-                        .add(mousePos.subtract(this.pos))
-                        .multiply(0.005)
-                        .multiply(speedMod)
-                    );
-                } else if (!this.gravity)
-                    this.speed = this.speed.add(
-                        a.pos.subtract(this.pos).multiply(-0.009).multiply(speedMod)
+                        .multiply(
+                            ((a.speedMod * this.speedMod) /
+                                this.pos.subtract(a.pos).magnitude) *
+                            -4
+                        )
                     );
             }
         });
@@ -118,6 +160,7 @@ function updateGameArea() {
         if (time) {
             a.search();
         }
+        averagemovements;
 
         a.update();
     });
@@ -140,7 +183,12 @@ var myGameArea = {
 
 document.body.onkeydown = function(e) {
     if (e.keyCode == 32) {
+        //spacebar
         time = !time;
+    }
+    if (e.keyCode == 13) {
+        //enter
+        mouseGrav = !mouseGrav;
     }
 };
 
