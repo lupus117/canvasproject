@@ -116,7 +116,6 @@ function entity(radius, color, x, y, speedMod) {
                     );
             }
         });
-        this.speed = this.speed.multiply(timeSpeed).multiply(time);
     };
 
     this.update = function() {
@@ -127,14 +126,14 @@ function entity(radius, color, x, y, speedMod) {
             this.pos.x + this.speed.x + this.radius < myGameArea.canvas.width &&
             time
         ) {
-            this.pos.x += this.speed.x;
+            this.pos.x += this.speed.x * timeSpeed;
         }
         if (
             this.pos.y + this.speed.y > 0 &&
             this.pos.y + this.speed.y + this.radius < myGameArea.canvas.height &&
             time
         ) {
-            this.pos.y += this.speed.y;
+            this.pos.y += this.speed.y * timeSpeed;
         }
 
         ctx = myGameArea.context;
@@ -155,10 +154,10 @@ var mousePos = new Vector(0, 0);
 function updateGameArea() {
     if (clearScreen) myGameArea.clear();
     myGamePieces.forEach((a) => {
-        if (time) {
+        if (time && timeSpeed != 0) {
             a.search();
         }
-        averagemovements;
+        //      averagemovements;
 
         a.update();
     });
