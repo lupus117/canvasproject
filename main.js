@@ -3,17 +3,28 @@
 //const { sha } = require("hash.js");
 
 //var ctx = c.getContext("2d");
+
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function() {
+        navigator.serviceWorker
+            .register("/serviceWorker.js")
+            .then((res) => console.log("service worker registered"))
+            .catch((err) => console.log("service worker not registered", err));
+    });
+}
+
 var time = true;
 var clearScreen = false;
-var mouseGrav = true;
+var mouseGrav = false;
+var centerGrav = 1;
 
 function startGame() {
     myGameArea.start();
     myGamePieces = [
-        new entity(20, "blue", 10, 120, 0.5, false),
-        new entity(20, "red", 500, 120, 2, false),
-        new entity(20, "green", 400, 120, 1, false),
-        new entity(20, "orange", 500, 150, 1, true),
+        new entity(20, "blue", 10, 120, 0.5),
+        new entity(20, "red", 500, 120, 2),
+        new entity(20, "green", 400, 120, 1),
+        new entity(20, "orange", 500, 150, 1),
     ];
 }
 
@@ -24,7 +35,7 @@ function averagemovements() {
     });
     totalspeedvector.multiply((1 / myGamePieces.count) * -1);
     array.forEach((a) => {
-        a.speed = a.spee.add(totalspeedvector);
+        a.speed = a.speed.add(totalspeedvector);
     });
 }
 
@@ -58,45 +69,21 @@ class Vector {
     }
 }
 
-function entity(radius, color, x, y, speedMod, gravity) {
+function entity(radius, color, x, y, speedMod) {
     this.speedMod = speedMod;
     this.radius = radius;
     this.speed = new Vector(0, 0);
     this.pos = new Vector(x, y);
-    this.gravity = gravity;
     this.search = function() {
-        /* if (mouseGrav)
-                                                            this.speed = this.speed.add(
-                                                                mousePos
-                                                                .subtract(this.pos)
-                                                                .add(mousePos.subtract(this.pos))
-                                                                .multiply(0.0005)
-                                                                .multiply(speedMod)
-                                                            );*/
-        if (mouseGrav)
-            this.speed = this.speed.add(
-                mousePos
-                .subtract(this.pos)
-                .add(mousePos.subtract(this.pos))
-                .multiply(0.0005)
-                .multiply(speedMod)
-            );
+        this.speed = this.speed.add(
+            mousePos
+            .subtract(this.pos)
+            .add(mousePos.subtract(this.pos))
+            .multiply(0.0005)
+            .multiply(speedMod)
+        );
         //make sure pieces try to avoid eachother;
         myGamePieces.forEach((a) => {
-            /*
-                                                                                                                if (a.pos != this.pos && a.pos.subtract(this.pos).magnitude < 70) {
-                                                                                                                    if (a.gravity) {
-                                                                                                                        this.speed = this.speed.add(
-                                                                                                                            this.pos
-                                                                                                                            .subtract(this.pos)
-                                                                                                                            .add(mousePos.subtract(this.pos))
-                                                                                                                            .multiply(0.005)
-                                                                                                                            .multiply(speedMod)
-                                                                                                                        );
-                                                                                                                    } else if (!this.gravity)
-                                                                                                                        this.speed = this.speed.add(
-                                                                                                                            a.pos.subtract(this.pos).multiply(-0.009).multiply(speedMod)
-                                                                                                                        );*/
             if (a.pos != this.pos) {
                 this.speed = this.speed.add(
                     a.pos
