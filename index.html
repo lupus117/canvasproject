@@ -2,28 +2,31 @@
 <html lang="en">
 
 <head>
+    <link rel="manifest" href="manifest.json" />
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="main.css" />
     <title>Game</title>
-    <link rel="manifest" href="manifest.json" />
 
 </head>
 
 <body>
-    <div class="">
-        <canvas id="canvas" width="1900px" height="800px" onclick="addItemOnClick()"></canvas>
-        <br />
-        <button onclick="startGame()">Start the Game</button>
-        <input id="color" type="color">Color</input>
-        <input id="sizeSlider" type="range" value="50" min="1" max="100">Size</input>
-        <input type="checkbox" onchange="checkclearer()">Clear screen</input>
-        <input id="speedSlider" type="range" value="50" min="0" max="100">Speed</input>
+    <main>
 
-    </div>
+        <div class="">
+            <canvas id="canvas" width="1900px" height="800px" onclick="addItemOnClick()"></canvas>
+            <br />
+            <button onclick="startGame()">Start the Game</button>
+            <input id="color" type="color">Color</input>
+            <input id="sizeSlider" type="range" value="50" min="1" max="100">Size</input>
+            <input type="checkbox" onchange="checkclearer()">Clear screen</input>
+            <input id="speedSlider" type="range" value="50" min="0" max="100">Speed</input>
+
+        </div>
+
+    </main>
+    <script src="main.js"></script>
 </body>
-
-<script src="main.js"></script>
 
 </html>
