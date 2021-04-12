@@ -17,9 +17,11 @@ var time = true;
 var clearScreen = false;
 var mouseGrav = false;
 var centerGrav = 1;
+var timeSpeed = 1;
 
 function startGame() {
     myGameArea.start();
+    myGamePieces = [];
     myGamePieces = [
         new entity(20, "blue", 10, 120, 0.5),
         new entity(20, "red", 500, 120, 2),
@@ -75,13 +77,21 @@ function entity(radius, color, x, y, speedMod) {
     this.speed = new Vector(0, 0);
     this.pos = new Vector(x, y);
     this.search = function() {
+        var tmpmouse = mousePos;
+        if (!mouseGrav) {
+            tmpmouse = new Vector(
+                myGameArea.canvas.width / 2,
+                myGameArea.canvas.height / 2
+            );
+        }
         this.speed = this.speed.add(
-            mousePos
+            tmpmouse
             .subtract(this.pos)
-            .add(mousePos.subtract(this.pos))
+            .add(tmpmouse.subtract(this.pos))
             .multiply(0.0005)
             .multiply(speedMod)
         );
+
         //make sure pieces try to avoid eachother;
         myGamePieces.forEach((a) => {
             if (a.pos != this.pos) {
@@ -106,6 +116,7 @@ function entity(radius, color, x, y, speedMod) {
                     );
             }
         });
+        this.speed = this.speed.multiply(timeSpeed).multiply(time);
     };
 
     this.update = function() {
@@ -162,6 +173,9 @@ var myGameArea = {
         this.canvas.addEventListener("mousemove", function(evt) {
             mousePos = getMousePos(canvas, evt);
         });
+        this.canvas.addEventListener("click", function(evt) {
+            addItemOnClick();
+        });
     },
     clear: function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -171,17 +185,31 @@ var myGameArea = {
 document.body.onkeydown = function(e) {
     if (e.keyCode == 32) {
         //spacebar
-        time = !time;
+        fliptime();
     }
     if (e.keyCode == 13) {
         //enter
-        mouseGrav = !mouseGrav;
+        flipgrav();
     }
 };
+
+function fliptime() {
+    time = !time;
+}
+
+function flipgrav() {
+    mouseGrav = !mouseGrav;
+}
 
 function checkclearer() {
     clearScreen = !clearScreen;
 }
+
+document
+    .getElementById("timeSlider")
+    .addEventListener("change", function(evt) {
+        timeSpeed = document.getElementById("timeSlider").value / 100;
+    });
 
 function addItemOnClick() {
     var size = document.getElementById("sizeSlider").value;
