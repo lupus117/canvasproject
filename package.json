@@ -1,11 +1,16 @@
 {
-  "name": "game",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC"
+    "name": "game",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "platforms": "cd Cordovagame &&  cordova platform add electron; cd ..",
+        "electron": "cd Cordovagame &&  cordova run electron --nobuild; cd .."
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "cordova": "^10.0.0"
+    }
 }
